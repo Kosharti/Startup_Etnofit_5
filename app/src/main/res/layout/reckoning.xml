@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@color/background"
+    android:padding="24dp">
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/buttonCalculate">  <!--  Добавляем эту строку -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/labelRegion"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Регион" />
+
+            <Spinner
+                android:id="@+id/spinnerRegion"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/edittext_bg"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="12dp" />
+
+            <TextView
+                android:id="@+id/labelElectricity"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Электроэнергия" />
+
+            <LinearLayout
+                android:id="@+id/layoutElectricityInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/inputElectricityPrev"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Предыдущие"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+
+                <EditText
+                    android:id="@+id/inputElectricityCurr"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Текущие"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/labelGas"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Газ" />
+
+            <LinearLayout
+                android:id="@+id/layoutGasInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/inputGasPrev"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Предыдущие"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+
+                <EditText
+                    android:id="@+id/inputGasCurr"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Текущие"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/labelWater"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Вода" />
+
+            <LinearLayout
+                android:id="@+id/layoutHotWaterInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/inputHotWaterPrev"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Горячая (пред.)"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+
+                <EditText
+                    android:id="@+id/inputHotWaterCurr"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Горячая (текущ.)"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/layoutColdWaterInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/inputColdWaterPrev"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Холодная (пред.)"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+
+                <EditText
+                    android:id="@+id/inputColdWaterCurr"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@drawable/edittext_bg"
+                    android:hint="Холодная (текущ.)"
+                    android:inputType="numberDecimal"
+                    android:padding="12dp"
+                    android:textColor="#000000"
+                    android:textColorHint="#888888" />
+            </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
+
+    <Button
+        android:id="@+id/buttonCalculate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@color/button"
+        android:padding="16dp"
+        android:text="Рассчитать"
+        android:textSize="18sp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="24dp"/>
+
+</RelativeLayout>

@@ -17,17 +17,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/imageView"
-            android:layout_width="369dp"
-            android:layout_height="406dp"
-            android:gravity="center_horizontal"
-            app:srcCompat="@drawable/graf_3"/>
-
         <TextView
             android:id="@+id/congratulationsTextView2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:padding="5dp"
             android:layout_marginTop="12dp"
             android:background="@drawable/edittext_bg"
             android:gravity="center"
@@ -38,19 +32,27 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="369dp"
+            android:layout_height="406dp"
+            android:gravity="center_horizontal"
+            app:srcCompat="@drawable/graf_3"/>
+
         <TextView
             android:id="@+id/congratulationsTextView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="432dp"
+            android:layout_marginTop="40dp"
             android:background="@drawable/edittext_bg"
             android:gravity="center"
+            android:padding="5dp"
             android:text="Мои поздравления! Ваша компания весьма экологична и показатели в норме, так держать! Спасибо, что посмотрели на меня, вы большие молодцы! Удачи вам в ваших свершениях! "
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/imageView"
+            app:layout_constraintTop_toBottomOf="@+id/imageView" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

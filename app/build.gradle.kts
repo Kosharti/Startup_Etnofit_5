@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
-    id("kotlin-kapt") // Добавляем kapt плагин
+    id("kotlin-kapt")
 }
 
 android {
@@ -28,7 +28,7 @@ android {
         }
     }
     buildFeatures {
-        viewBinding = true // Если еще не включено
+        viewBinding = true
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11

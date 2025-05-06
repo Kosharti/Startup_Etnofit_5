@@ -1,3 +1,4 @@
+
 package com.example.startup_etnofit_2
 
 import android.content.Intent
@@ -77,18 +78,22 @@ class ReckoningActivity : AppCompatActivity() {
             val previousMonthYear = getPreviousMonthYear(year, month)
             val nextMonthYear = getNextMonthYear(year, month)
 
+            // Загрузка данных для предыдущего месяца из ReckoningData
             val previousMonthData = withContext(Dispatchers.IO) {
                 reckoningDataDao.getReckoningDataByYearAndMonth(previousMonthYear.first, previousMonthYear.second)
             }
 
+            // Загрузка данных для текущего месяца из ReckoningData
             val currentMonthData = withContext(Dispatchers.IO) {
                 reckoningDataDao.getReckoningDataByYearAndMonth(year, month)
             }
 
+            // Загрузка данных для следующего месяца из PreviousReckoningData
             val nextMonthData = withContext(Dispatchers.IO) {
                 previousReckoningDataDao.getPreviousReckoningDataByYearAndMonth(nextMonthYear.first, nextMonthYear.second)
             }
 
+            // Заполнение полей предыдущими данными (текущие показания за предыдущий месяц)
             if (previousMonthData != null) {
                 inputElectricityPrev.setText(previousMonthData.electricityCurr.toString())
                 inputGasPrev.setText(previousMonthData.gasCurr.toString())
@@ -100,23 +105,35 @@ class ReckoningActivity : AppCompatActivity() {
                 setInputFieldBackground(inputColdWaterPrev, true)
             }
 
-            if (nextMonthData != null) {
-                inputElectricityCurr.setText(nextMonthData.electricityPrev.toString())
-                inputGasCurr.setText(nextMonthData.gasPrev.toString())
-                inputHotWaterCurr.setText(nextMonthData.hotWaterPrev.toString())
-                inputColdWaterCurr.setText(nextMonthData.coldWaterPrev.toString())
+            // Заполнение полей текущими данными
+            if (currentMonthData != null) {
+                spinnerRegion.setSelection(getIndex(spinnerRegion, currentMonthData.region))
+                inputElectricityCurr.setText(currentMonthData.electricityCurr.toString())
+                inputGasCurr.setText(currentMonthData.gasCurr.toString())
+                inputHotWaterCurr.setText(currentMonthData.hotWaterCurr.toString())
+                inputColdWaterCurr.setText(currentMonthData.coldWaterCurr.toString())
 
                 setInputFieldBackground(inputElectricityCurr, true)
                 setInputFieldBackground(inputGasCurr, true)
                 setInputFieldBackground(inputHotWaterCurr, true)
                 setInputFieldBackground(inputColdWaterCurr, true)
             }
-            if (currentMonthData != null) {
-                spinnerRegion.setSelection(getIndex(spinnerRegion, currentMonthData.region))
-            }
 
+            // Заполнение полей данными из PreviousReckoningData (предыдущие показания за текущий месяц)
+            if (nextMonthData != null) {
+                inputElectricityPrev.setText(nextMonthData.electricityPrev.toString())
+                inputGasPrev.setText(nextMonthData.gasPrev.toString())
+                inputHotWaterPrev.setText(nextMonthData.hotWaterPrev.toString())
+                inputColdWaterPrev.setText(nextMonthData.coldWaterPrev.toString())
+
+                setInputFieldBackground(inputElectricityPrev, true)
+                setInputFieldBackground(inputGasPrev, true)
+                setInputFieldBackground(inputHotWaterPrev, true)
+                setInputFieldBackground(inputColdWaterPrev, true)
+            }
         }
     }
+
     private fun setInputFieldBackground(editText: EditText, autofilled: Boolean) {
         if (autofilled) {
             editText.background = ContextCompat.getDrawable(this, R.drawable.edittext_bg_autofilled)
@@ -181,6 +198,7 @@ class ReckoningActivity : AppCompatActivity() {
                 Log.d("ReckoningActivity", "S: $S")
                 Log.d("ReckoningActivity", "M: $M")
 
+                // Сохраняем данные за предыдущий месяц в PreviousReckoningData
                 val previousData = PreviousReckoningData(
                     year = year,
                     month = month,
@@ -191,36 +209,37 @@ class ReckoningActivity : AppCompatActivity() {
                     coldWaterPrev = coldWaterPrev
                 )
 
+                val existingPreviousData = withContext(Dispatchers.IO) {
+                    previousReckoningDataDao.getPreviousReckoningDataByYearAndMonth(year, month)
+                }
+
+                val newData = ReckoningData(
+                    year = year,
+                    month = month,
+                    region = region,
+                    electricityCurr = electricityCurr,
+                    gasCurr = gasCurr,
+                    hotWaterCurr = hotWaterCurr,
+                    coldWaterCurr = coldWaterCurr,
+                    S = S,
+                    M = M
+                )
+
                 val existingData = withContext(Dispatchers.IO) {
                     reckoningDataDao.getReckoningDataByYearAndMonth(year, month)
                 }
 
                 if (existingData != null) {
-                    val updatedData = existingData.copy(
-                        region = region,
-                        electricityCurr = electricityCurr,
-                        gasCurr = gasCurr,
-                        hotWaterCurr = hotWaterCurr,
-                        coldWaterCurr = coldWaterCurr,
-                        S = S,
-                        M = M
-                    )
+                    val updatedData = newData.copy(id = existingData.id)
                     withContext(Dispatchers.IO) {
                         reckoningDataDao.update(updatedData)
-                        previousReckoningDataDao.insert(previousData)
+                        if (existingPreviousData != null) {
+                            previousReckoningDataDao.update(previousData.copy(id = existingPreviousData.id))
+                        } else {
+                            previousReckoningDataDao.insert(previousData)
+                        }
                     }
                 } else {
-                    val newData = ReckoningData(
-                        year = year,
-                        month = month,
-                        region = region,
-                        electricityCurr = electricityCurr,
-                        gasCurr = gasCurr,
-                        hotWaterCurr = hotWaterCurr,
-                        coldWaterCurr = coldWaterCurr,
-                        S = S,
-                        M = M
-                    )
                     withContext(Dispatchers.IO) {
                         reckoningDataDao.insert(newData)
                         previousReckoningDataDao.insert(previousData)

@@ -1,3 +1,4 @@
+
 package com.example.startup_etnofit_2
 
 import android.content.Intent
@@ -138,12 +139,64 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val averageCheck = if (numberOfChecks > 0) revenue / numberOfChecks else 0.0
+        lifecycleScope.launch { // Теперь все вызовы withContext внутри корутины
+            val previousRevenue = withContext(Dispatchers.IO) {
+                val previousMonthYear = getPreviousMonthYear(year, month)
+                val previousMonth = previousMonthYear.second
+                if (month == 1) {
+                    0.0
+                } else {
+                    checksDataDao.getChecksDataByYearAndMonth(
+                        previousMonthYear.first,
+                        previousMonth
+                    )?.revenue ?: 0.0
+                }
+            }
 
-        Log.d("MainActivity", "Год: $year, Месяц: $month, Выручка: $revenue, Кол-во чеков: $numberOfChecks")
-        Log.d("MainActivity", "Средний чек (перед сохранением): $averageCheck")
+            val realRevenue = calculateRealRevenue(revenue, previousRevenue)
 
-        lifecycleScope.launch {
+            val averageCheck = if (numberOfChecks > 0) realRevenue / numberOfChecks else 0.0
+
+            Log.d("MainActivity", "Год: $year, Месяц: $month, Выручка: $revenue, Кол-во чеков: $numberOfChecks")
+            Log.d("MainActivity", "Средний чек (перед сохранением): $averageCheck")
+
+            // Проверяем, не уменьшается ли выручка по сравнению с предыдущим месяцем
+            val previousMonthYear = getPreviousMonthYear(year, month)
+            val previousMonthData = withContext(Dispatchers.IO) {
+                checksDataDao.getChecksDataByYearAndMonth(
+                    previousMonthYear.first,
+                    previousMonthYear.second
+                )
+            }
+
+            if (previousMonthData != null && revenue < previousMonthData.revenue) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Выручка не может быть меньше, чем в предыдущем месяце",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch // Прекращаем выполнение, если выручка меньше
+            }
+
+            // Проверяем, не превышает ли введенная выручка выручку за следующий месяц
+            val nextMonthYear = getNextMonthYear(year, month)
+            val nextMonthData = withContext(Dispatchers.IO) {
+                checksDataDao.getChecksDataByYearAndMonth(
+                    nextMonthYear.first,
+                    nextMonthYear.second
+                )
+            }
+
+            if (nextMonthData != null && revenue > nextMonthData.revenue) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Введенная выручка не может превышать выручку за следующий месяц",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@launch
+            }
+
+
             val existingData = withContext(Dispatchers.IO) {
                 checksDataDao.getChecksDataByYearAndMonth(year, month)
             }
@@ -153,7 +206,8 @@ class MainActivity : AppCompatActivity() {
                 month = month,
                 revenue = revenue,
                 numberOfChecks = numberOfChecks,
-                averageCheck = averageCheck
+                averageCheck = averageCheck,
+                realRevenue = realRevenue
             )
 
             if (existingData != null) {
@@ -171,6 +225,31 @@ class MainActivity : AppCompatActivity() {
 
             showCalculationResult(averageCheck)
         }
+    }
+
+    private fun getPreviousMonthYear(year: Int, month: Int): Pair<Int, Int> {
+        var previousMonth = month - 1
+        var previousYear = year
+        if (previousMonth < 1) {
+            previousMonth = 12
+            previousYear--
+        }
+        return Pair(previousYear, previousMonth)
+    }
+
+    private fun getNextMonthYear(year: Int, month: Int): Pair<Int, Int> {
+        var nextMonth = month + 1
+        var nextYear = year
+        if (nextMonth > 12) {
+            nextMonth = 1
+            nextYear++
+        }
+        return Pair(nextYear, nextMonth)
+    }
+
+    private fun calculateRealRevenue(currentRevenue: Double, previousRevenue: Double): Double {
+        val realRevenue = currentRevenue - previousRevenue
+        return if (realRevenue > 0) realRevenue else 0.0
     }
 
     private fun showCalculationResult(averageCheck: Double) {

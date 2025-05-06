@@ -10,7 +10,8 @@ data class ChecksData(
     val month: Int,
     val revenue: Double,
     val numberOfChecks: Int,
-    val averageCheck: Double
+    val averageCheck: Double,
+    val realRevenue: Double
 )
 
 @Entity(tableName = "reckoning_data")

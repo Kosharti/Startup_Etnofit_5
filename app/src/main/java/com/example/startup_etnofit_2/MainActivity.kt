@@ -49,8 +49,9 @@ class MainActivity : AppCompatActivity() {
         checksDataDao = db.checksDataDao()
 
         inputYear.minValue = 2010
-        inputYear.maxValue = 2025
-        inputYear.value = Calendar.getInstance().get(Calendar.YEAR)
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+        inputYear.maxValue = currentYear + 5
+        inputYear.value = currentYear
         inputYear.wrapSelectorWheel = false
 
         inputMonth.minValue = 0
@@ -139,7 +140,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        lifecycleScope.launch { // Теперь все вызовы withContext внутри корутины
+        lifecycleScope.launch {
             val previousRevenue = withContext(Dispatchers.IO) {
                 val previousMonthYear = getPreviousMonthYear(year, month)
                 val previousMonth = previousMonthYear.second
@@ -160,7 +161,6 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "Год: $year, Месяц: $month, Выручка: $revenue, Кол-во чеков: $numberOfChecks")
             Log.d("MainActivity", "Средний чек (перед сохранением): $averageCheck")
 
-            // Проверяем, не уменьшается ли выручка по сравнению с предыдущим месяцем
             val previousMonthYear = getPreviousMonthYear(year, month)
             val previousMonthData = withContext(Dispatchers.IO) {
                 checksDataDao.getChecksDataByYearAndMonth(
@@ -175,10 +175,9 @@ class MainActivity : AppCompatActivity() {
                     "Выручка не может быть меньше, чем в предыдущем месяце",
                     Toast.LENGTH_SHORT
                 ).show()
-                return@launch // Прекращаем выполнение, если выручка меньше
+                return@launch
             }
 
-            // Проверяем, не превышает ли введенная выручка выручку за следующий месяц
             val nextMonthYear = getNextMonthYear(year, month)
             val nextMonthData = withContext(Dispatchers.IO) {
                 checksDataDao.getChecksDataByYearAndMonth(

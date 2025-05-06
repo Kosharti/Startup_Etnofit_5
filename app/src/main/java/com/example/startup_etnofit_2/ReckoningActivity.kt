@@ -174,7 +174,7 @@ class ReckoningActivity : AppCompatActivity() {
 
         if (electricityCurr == null || gasCurr == null || hotWaterCurr == null || coldWaterCurr == null||
             electricityPrev == null || gasPrev == null || hotWaterPrev == null || coldWaterPrev == null) {
-            Toast.makeText(this, "Некорректный форматчисел", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Некорректный формат чисел", Toast.LENGTH_SHORT).show()
             return
         }
         val regionCoefficient = 0.366

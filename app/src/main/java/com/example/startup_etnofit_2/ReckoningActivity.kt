@@ -327,6 +327,10 @@ class ReckoningActivity : AppCompatActivity() {
 
         okButton.setOnClickListener {
             dialog.dismiss()
+            val intent = Intent(this, Page3Activity::class.java)
+            intent.putExtra("year", year)
+            startActivity(intent)
+            finish()
         }
     }
 }

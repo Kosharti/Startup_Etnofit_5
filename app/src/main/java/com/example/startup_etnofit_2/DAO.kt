@@ -5,6 +5,12 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 
+data class YearMonthS(
+    val year: Int,
+    val month: Int,
+    val S: Double
+)
+
 @Dao
 interface ChecksDataDao {
     @Insert
@@ -46,6 +52,20 @@ interface ReckoningDataDao {
         LIMIT 12
     """)
     suspend fun getLast12S(currYear: Int, currMonth: Int): List<Double>
+
+    @Query("""
+        SELECT year AS year,
+               month AS month,
+               S     AS S
+          FROM reckoning_data
+         WHERE (year * 12 + month) <= (:currYear * 12 + :currMonth)
+         ORDER BY year DESC, month DESC
+         LIMIT 12
+    """)
+    suspend fun getLast12YearMonthS(
+        currYear: Int,
+        currMonth: Int
+    ): List<YearMonthS>
 }
 
 @Dao

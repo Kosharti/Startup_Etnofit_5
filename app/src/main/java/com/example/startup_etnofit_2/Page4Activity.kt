@@ -1,4 +1,3 @@
-// 2. Полный шаблон Page4Activity.kt
 package com.example.startup_etnofit_2
 
 import android.content.Intent
@@ -22,7 +21,7 @@ class Page4Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.page_4)
 
-        resultTextView = findViewById(R.id.congratulationsTextView) // Или добавьте отдельный TextView для вывода
+        resultTextView = findViewById(R.id.congratulationsTextView)
         backButton = findViewById(R.id.backButton)
         db = AppDatabase.getDatabase(this)
 
@@ -31,44 +30,64 @@ class Page4Activity : AppCompatActivity() {
             finish()
         }
 
-        // Параметры текущего месяца из интента или из даты
         val currYear = intent.getIntExtra("year", Calendar.getInstance().get(Calendar.YEAR))
         val currMonth = intent.getIntExtra("month", Calendar.getInstance().get(Calendar.MONTH) + 1)
 
         lifecycleScope.launch {
-            val sList = withContext(Dispatchers.IO) {
-                db.reckoningDataDao().getLast12S(currYear, currMonth)
+            // получаем последние 12 записей с годом, месяцем и S
+            val dataList = withContext(Dispatchers.IO) {
+                db.reckoningDataDao().getLast12YearMonthS(currYear, currMonth)
             }
 
-            if (sList.size < 12) {
+            // если меньше 12 — сообщаем и выходим
+            if (dataList.size < 12) {
                 resultTextView.text = "Недостаточно данных за последние 12 месяцев"
                 return@launch
             }
 
-            val currS = sList[0]  // первый элемент — текущий месяц
+            // проверка на пропуски
+            var hasGap = false
+            for (i in 0 until dataList.size - 1) {
+                val (yPrev, mPrev, _) = dataList[i + 1]
+                val (yCurr, mCurr, _) = dataList[i]
+                val next = if (mPrev == 12) Pair(yPrev + 1, 1) else Pair(yPrev, mPrev + 1)
+                if (Pair(yCurr, mCurr) != next) {
+                    hasGap = true
+                    break
+                }
+            }
+
+            if (hasGap) {
+                resultTextView.text = "В данных за последние 12 месяцев есть пропуски месяцев."
+                return@launch
+            }
+
+            // извлекаем S
+            val sList = dataList.map { it.S }
+            val currS = sList.first()
             val minS = sList.minOrNull() ?: currS
             val maxS = sList.maxOrNull() ?: currS
 
-            // Определяем условие
+            // формируем сообщение по S
             val message = when {
-                // 7. макс и мин равны текущему
-                maxS == currS && minS == currS -> "Все значения S за последние 12 месяцев равны текущему."
-                // 8. макс и мин больше текущего
-                maxS > currS && minS > currS -> "Все значения S за последние 12 месяцев выше текущего."
-                // 9. макс и мин меньше текущего
-                maxS < currS && minS < currS -> "Все значения S за последние 12 месяцев ниже текущего."
-                // 1. min > текущего
-                minS > currS -> "Минимальное S за период выше текущего."
-                // 2. min < текущего
-                minS < currS -> "Минимальное S за период ниже текущего."
-                // 5. min == текущему
-                minS == currS -> "Минимальное S за период равно текущему."
-                // 3. max > текущего
-                maxS > currS -> "Максимальное S за период выше текущего."
-                // 4. max < текущего
-                maxS < currS -> "Максимальное S за период ниже текущего."
-                // 6. max == текущему
-                maxS == currS -> "Максимальное S за период равно текущему."
+                maxS == currS && minS == currS ->
+                    "Все значения S за последние 12 месяцев равны текущему."
+                maxS > currS && minS > currS ->
+                    "Все значения S за последние 12 месяцев выше текущего."
+                maxS < currS && minS < currS ->
+                    "Все значения S за последние 12 месяцев ниже текущего."
+                minS > currS ->
+                    "Минимальное S за период выше текущего."
+                minS < currS ->
+                    "Минимальное S за период ниже текущего."
+                minS == currS ->
+                    "Минимальное S за период равно текущему."
+                maxS > currS ->
+                    "Максимальное S за периода выше текущего."
+                maxS < currS ->
+                    "Максимальное S за периода ниже текущему."
+                maxS == currS ->
+                    "Максимальное S за периода равно текущему."
                 else -> ""
             }
 

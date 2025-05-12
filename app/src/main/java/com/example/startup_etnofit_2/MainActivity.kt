@@ -168,16 +168,16 @@ class MainActivity : AppCompatActivity() {
                     previousMonthYear.second
                 )
             }
-
-            if (previousMonthData != null && revenue < previousMonthData.revenue) {
-                Toast.makeText(
-                    this@MainActivity,
-                    "Выручка не может быть меньше, чем в предыдущем месяце",
-                    Toast.LENGTH_SHORT
-                ).show()
-                return@launch
+            if (month != 1) {
+                if (previousMonthData != null && revenue <= previousMonthData.revenue ) {
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Выручка не может быть меньше, чем в предыдущем месяце",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    return@launch
+                }
             }
-
             val nextMonthYear = getNextMonthYear(year, month)
             val nextMonthData = withContext(Dispatchers.IO) {
                 checksDataDao.getChecksDataByYearAndMonth(
@@ -252,7 +252,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCalculationResult(averageCheck: Double) {
-
         val intent = Intent(this, ReckoningActivity::class.java).apply {
             putExtra("year", inputYear.value)
             putExtra("month", selectedMonth!!)

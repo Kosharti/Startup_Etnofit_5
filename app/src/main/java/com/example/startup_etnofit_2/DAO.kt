@@ -38,6 +38,14 @@ interface ReckoningDataDao {
     suspend fun getPreviousMonthData(year: Int, month: Int): ReckoningData?
     @Query("SELECT * FROM reckoning_data WHERE year = :year AND month = :month LIMIT 1")
     suspend fun getNextMonthData(year: Int, month: Int): ReckoningData?
+
+    @Query("""
+        SELECT S FROM reckoning_data
+        WHERE (year * 12 + month) <= (:currYear * 12 + :currMonth)
+        ORDER BY year DESC, month DESC
+        LIMIT 12
+    """)
+    suspend fun getLast12S(currYear: Int, currMonth: Int): List<Double>
 }
 
 @Dao

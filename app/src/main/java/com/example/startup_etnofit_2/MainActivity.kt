@@ -252,28 +252,29 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun showCalculationResult(averageCheck: Double) {
+
+        val intent = Intent(this, ReckoningActivity::class.java).apply {
+            putExtra("year", inputYear.value)
+            putExtra("month", selectedMonth!!)
+        }
+
         val builder = AlertDialog.Builder(this)
         val view = LayoutInflater.from(this).inflate(R.layout.dialog_result, null)
-        val averageCheckTextView = view.findViewById<TextView>(R.id.averageCheckTextView)
-        val checkButton = view.findViewById<Button>(R.id.checkButton)
-
-        buttonCalculate.text = "Далее"
-        buttonCalculate.setOnClickListener {
-            val intent = Intent(this, ReckoningActivity::class.java)
-            val year = inputYear.value
-            val month = selectedMonth!!
-            intent.putExtra("year", year)
-            intent.putExtra("month", month)
-            startActivity(intent)
-        }
-        averageCheckTextView.text = String.format("Средний чек: %.2f", averageCheck)
         builder.setView(view)
 
-        val dialog = builder.create()
-        dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
-        dialog.show()
+        val averageCheckTextView = view.findViewById<TextView>(R.id.averageCheckTextView)
+        val checkButton = view.findViewById<Button>(R.id.checkButton)
+        averageCheckTextView.text = String.format("Средний чек: %.2f", averageCheck)
+
+        val dialog = builder.create().apply {
+            window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
+            show()
+        }
+
         checkButton.setOnClickListener {
             dialog.dismiss()
+            startActivity(intent)
+            finish()
         }
     }
 }

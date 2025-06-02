@@ -34,18 +34,15 @@ class Page4Activity : AppCompatActivity() {
         val currMonth = intent.getIntExtra("month", Calendar.getInstance().get(Calendar.MONTH) + 1)
 
         lifecycleScope.launch {
-            // получаем последние 12 записей с годом, месяцем и S
             val dataList = withContext(Dispatchers.IO) {
                 db.reckoningDataDao().getLast12YearMonthS(currYear, currMonth)
             }
 
-            // если меньше 12 — сообщаем и выходим
-            if (dataList.size < 12) {
-                resultTextView.text = "Недостаточно данных за последние 12 месяцев"
+            if (dataList.size < 5) {
+                resultTextView.text = "Недостаточно данных за последние 4 месяцев"
                 return@launch
             }
 
-            // проверка на пропуски
             var hasGap = false
             for (i in 0 until dataList.size - 1) {
                 val (yPrev, mPrev, _) = dataList[i + 1]
@@ -62,13 +59,11 @@ class Page4Activity : AppCompatActivity() {
                 return@launch
             }
 
-            // извлекаем S
             val sList = dataList.map { it.S }
             val currS = sList.first()
             val minS = sList.minOrNull() ?: currS
             val maxS = sList.maxOrNull() ?: currS
 
-            // формируем сообщение по S
             val message = when {
                 maxS == currS && minS == currS ->
                     "Все значения S за последние 12 месяцев равны текущему."
@@ -90,7 +85,6 @@ class Page4Activity : AppCompatActivity() {
                     "Максимальное S за периода равно текущему."
                 else -> ""
             }
-
             resultTextView.text = message
         }
     }
